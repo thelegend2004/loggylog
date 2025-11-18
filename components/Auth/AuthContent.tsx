@@ -1,17 +1,27 @@
-import { useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { useState } from "react";
+import { Alert, StyleSheet, View } from "react-native";
 
-import FlatButton from '../UI/FlatButton';
-import AuthForm from './AuthForm';
-import { Colors } from '../../constants/styles';
+import FlatButton from "../UI/FlatButton";
+import AuthForm from "./AuthForm";
+import { Colors } from "../../constants/styles";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../../types/navigation";
 
 interface AuthContentProps {
-  isLogin: boolean,
-  onAuthenticate: (value: any) => void,
+  isLogin: boolean;
+  onAuthenticate: (value: any) => void;
 }
 
-export default function AuthContent({ isLogin, onAuthenticate } : AuthContentProps) {
+type AuthContentNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "Login"
+>;
 
+export default function AuthContent({
+  isLogin,
+  onAuthenticate,
+}: AuthContentProps) {
   const [credentialsInvalid, setCredentialsInvalid] = useState({
     email: false,
     password: false,
@@ -19,17 +29,23 @@ export default function AuthContent({ isLogin, onAuthenticate } : AuthContentPro
     confirmPassword: false,
   });
 
+  const navigation = useNavigation<AuthContentNavigationProp>();
+
   function switchAuthModeHandler() {
-    // Todo
+    if (isLogin) {
+      navigation.replace("Signup");
+    } else {
+      navigation.replace("Login");
+    }
   }
 
-  function submitHandler(credentials : any) {
+  function submitHandler(credentials: any) {
     let { email, confirmEmail, password, confirmPassword } = credentials;
 
     email = email.trim();
     password = password.trim();
 
-    const emailIsValid = email.includes('@');
+    const emailIsValid = email.includes("@");
     const passwordIsValid = password.length > 6;
     const emailsAreEqual = email === confirmEmail;
     const passwordsAreEqual = password === confirmPassword;
@@ -39,7 +55,7 @@ export default function AuthContent({ isLogin, onAuthenticate } : AuthContentPro
       !passwordIsValid ||
       (!isLogin && (!emailsAreEqual || !passwordsAreEqual))
     ) {
-      Alert.alert('Invalid input', 'Please check your entered credentials.');
+      Alert.alert("Invalid input", "Please check your entered credentials.");
       setCredentialsInvalid({
         email: !emailIsValid,
         confirmEmail: !emailIsValid || !emailsAreEqual,
@@ -60,7 +76,7 @@ export default function AuthContent({ isLogin, onAuthenticate } : AuthContentPro
       />
       <View style={styles.buttons}>
         <FlatButton onPress={switchAuthModeHandler}>
-          {isLogin ? 'Create a new user' : 'Log in instead'}
+          {isLogin ? "Create a new user" : "Log in instead"}
         </FlatButton>
       </View>
     </View>
@@ -75,7 +91,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: Colors.primary800,
     elevation: 2,
-    shadowColor: 'black',
+    shadowColor: "black",
     shadowOffset: { width: 1, height: 1 },
     shadowOpacity: 0.35,
     shadowRadius: 4,
